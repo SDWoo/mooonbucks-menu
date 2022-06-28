@@ -1,28 +1,36 @@
-/* 오늘 얻은 인사이트
- 1. 이벤트 위임에 대해 알게 되었다. (이벤트 위임은 여러 요소에게 이벤트를 할당하지 않고 공통되는 부모에게 이벤트 할당하는 방식. e.target으로 해당 타겟 객체로 감)
- 2. 요구사항을 먼저 세세하게 나누고 코딩을 시작하는 것의 중요성을 알았다.
- 3. DOM 요소를 가져올 떄, $표시를 써서 변수처럼 사용할 수 있는게 좋았다.
- 4. 새롭게 알게된 메소드: form 태그 자동 전송 막기 e.preventDefault(), querySelector(All), innerText, innerHTML, e.target.classList.contains()
- insertAdjacentHTML(HTML 요소의 어디에, 무엇을 넣을 건지), e.target.closest(타겟에서 가장 가까운 css 요소를 찾음)
-*/
-//step1 요구사항 구현을 위한 전략
-// TODO 메뉴 추가
-// ㅇ 메뉴의 이름을 입력받고 나면 엔터키 입력으로 추가한다.
-// ㅇ 메뉴의 이름을 입력받고 나면 확인버튼으로 추가한다.
-// ㅇ 추가되는 메뉴의 아래 마크업은 <ul id="espresso-menu-list" class="mt-3 pl-0"></ul> 안에 삽입해야 한다.
-// ㅇ 총 메뉴 갯수를 count하여 상단에 보여준다.
-// ㅇ 메뉴가 추가되고 나면, input은 빈 값으로 초기화한다.
-// ㅇ 사용자 입력값이 빈 값이라면 추가되지 않는다.
+/* step 2 요구사항
+- TODO localStorage read & write
+ [] localStorage에 데이터를 저장한다. (메뉴 추가, 메뉴 수정, 메뉴 삭제)
+ [] localStorage에 있는 데이터를 읽어온다. (새로고침해도 데이터가 남아 있게 하기 위함)
 
-// TODO 메뉴 수정
-// o 메뉴의 수정 버튼을 눌러 메뉴 이름 수정할 수 있다.
-// o 메뉴 수정시 브라우저에서 제공하는 prompt 인터페이스를 활용한다.
+- TODO 카테고리 별 메뉴판 관리
+ [] 에스프레소 메뉴판 관리
+ [] 프라푸치노 메뉴판 관리
+ [] 블렌디드 메뉴판 관리
+ [] 티바나 메뉴판 관리
+ [] 디저트 메뉴판 관리
 
-// TODO 메뉴 삭제
-// o 메뉴 삭제 버튼을 이용하여 메뉴 삭제할 수 있다.
-// o 메뉴 삭제시 브라우저에서 제공하는 confirm 인터페이스를 활용한다.
+- TODO 페이지 최초 로딩 시 데이터 read & rendering
+ [] 페이지에 최초로 로딩할 떄, localStorage에서 에스프레소 메뉴를 읽어온다.
+ [] 그 후, 읽어온 에스프레소 데이터를 화면에 보여준다.
+
+- 
+ [] 품절 버튼을 추가한다.
+ [] 품절 버튼을 클릭하면 localStorage에 상태 값이 저장된다.
+ [] 클릭 이벤트에서 가장 가까운 li 태그의 class 값에 sold-out 을 추가한다.*/
+const store = {
+  setLocalStorage(menu) {
+    localStorage.setItem("menu", JSON.stringify(menu));
+  },
+  getLocalStorage() {
+    localStorage.getItem("menu");
+  },
+};
+const $ = (selector) => document.querySelector(selector);
+
 function App() {
-  const $ = (selector) => document.querySelector(selector);
+  this.menu = [];
+
   const updateMenuCount = () => {
     const menuCount = $("#espresso-menu-list").querySelectorAll("li").length;
     $(".menu-count").innerText = `총 ${menuCount} 개`;
@@ -34,10 +42,13 @@ function App() {
       return;
     }
     const menuName = $("#espresso-menu-name").value;
-    const menuNameTemplate = (menuName) => {
-      return `
-        <li class="menu-list-item d-flex items-center py-2">
-        <span class="w-100 pl-2 menu-name">${menuName}</span>
+    this.menu.push({ name: menuName });
+    store.setLocalStorage(this.menu);
+    const template = this.menu
+      .map((item, index) => {
+        return `
+        <li data-menu-Id = "${index}"class="menu-list-item d-flex items-center py-2">
+        <span class="w-100 pl-2 menu-name">${item.name}</span>
         <button
         type="button"
         class="bg-gray-50 text-gray-500 text-sm mr-1 menu-edit-button">
@@ -50,23 +61,28 @@ function App() {
         </button>
         </li>
         `;
-    };
-    $("#espresso-menu-list").insertAdjacentHTML(
-      "beforeend",
-      menuNameTemplate(menuName)
-    );
+      })
+      .join("");
+
+    $("#espresso-menu-list").innerHTML = template;
     updateMenuCount();
     $("#espresso-menu-name").value = "";
   };
 
   const updateMenuName = (e) => {
+    const menuId = e.target.closest("li").dataset.menuId;
     const $MenuName = e.target.closest("li").querySelector(".menu-name");
     const updateMenuName = prompt("메뉴를 수정하세요", $MenuName.innerText);
+    this.menu[menuId].name = updateMenuName;
+    store.setLocalStorage(this.menu);
     $MenuName.innerText = updateMenuName;
   };
 
   const removeMenuName = (e) => {
     if (confirm("정말 삭제하시겠습니까?")) {
+      const menuId = e.target.closest("li").dataset.menuId;
+      this.menu.splice(menuId, 1);
+      store.setLocalStorage(this.menu);
       e.target.closest("li").remove();
       updateMenuCount();
     }
@@ -95,4 +111,4 @@ function App() {
   });
 }
 
-App();
+const app = new App();
