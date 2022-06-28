@@ -12,14 +12,15 @@
 // o 메뉴 수정시 브라우저에서 제공하는 prompt 인터페이스를 활용한다.
 
 // TODO 메뉴 삭제
-//  메뉴 삭제 버튼을 이용하여 메뉴 삭제할 수 있다.
-//  메뉴 삭제시 브라우저에서 제공하는 confirm 인터페이스를 활용한다.
+// o 메뉴 삭제 버튼을 이용하여 메뉴 삭제할 수 있다.
+// o 메뉴 삭제시 브라우저에서 제공하는 confirm 인터페이스를 활용한다.
 function App() {
   const $ = (selector) => document.querySelector(selector);
   const updateMenuCount = () => {
     const menuCount = $("#espresso-menu-list").querySelectorAll("li").length;
     $(".menu-count").innerText = `총 ${menuCount} 개`;
   };
+
   const addMenu = () => {
     if ($("#espresso-menu-name").value === "") {
       alert("값을 입력해주세여");
@@ -50,6 +51,19 @@ function App() {
     updateMenuCount();
     $("#espresso-menu-name").value = "";
   };
+
+  const updateMenuName = (e) => {
+    const $MenuName = e.target.closest("li").querySelector(".menu-name");
+    const updateMenuName = prompt("메뉴를 수정하세요", $MenuName.innerText);
+    $MenuName.innerText = updateMenuName;
+  };
+
+  const removeMenuName = (e) => {
+    if (confirm("정말 삭제하시겠습니까?")) {
+      e.target.closest("li").remove();
+      updateMenuCount();
+    }
+  };
   // form 태그 자동 전송 막기
   $("#espresso-menu-form").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -66,15 +80,10 @@ function App() {
   // click edit , remove button
   $("#espresso-menu-list").addEventListener("click", (e) => {
     if (e.target.classList.contains("menu-edit-button")) {
-      const $MenuName = e.target.closest("li").querySelector(".menu-name");
-      const updateMenuName = prompt("메뉴를 수정하세요", $MenuName.innerText);
-      $MenuName.innerText = updateMenuName;
+      updateMenuName(e);
     }
     if (e.target.classList.contains("menu-remove-button")) {
-      if (confirm("정말 삭제하시겠습니까?")) {
-        e.target.closest("li").remove();
-        updateMenuCount();
-      }
+      removeMenuName(e);
     }
   });
 }
