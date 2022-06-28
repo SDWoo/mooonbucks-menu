@@ -1,3 +1,10 @@
+/* 오늘 얻은 인사이트
+ 1. 이벤트 위임에 대해 알게 되었다. (이벤트 위임은 여러 요소에게 이벤트를 할당하지 않고 공통되는 부모에게 이벤트 할당하는 방식. e.target으로 해당 타겟 객체로 감)
+ 2. 요구사항을 먼저 세세하게 나누고 코딩을 시작하는 것의 중요성을 알았다.
+ 3. DOM 요소를 가져올 떄, $표시를 써서 변수처럼 사용할 수 있는게 좋았다.
+ 4. 새롭게 알게된 메소드: form 태그 자동 전송 막기 e.preventDefault(), querySelector(All), innerText, innerHTML, e.target.classList.contains()
+ insertAdjacentHTML(HTML 요소의 어디에, 무엇을 넣을 건지), e.target.closest(타겟에서 가장 가까운 css 요소를 찾음)
+*/
 //step1 요구사항 구현을 위한 전략
 // TODO 메뉴 추가
 // ㅇ 메뉴의 이름을 입력받고 나면 엔터키 입력으로 추가한다.
