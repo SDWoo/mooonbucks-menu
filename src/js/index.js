@@ -20,7 +20,6 @@ import MenuApi from "../api/index.js";
 // [x] - 중복되는 메뉴는 추가할 수 없다.
 // API 통신 방법 fetch('url', option)
 
-const BASE_URL = "http://localhost:3000/api";
 function App() {
   this.menu = {
     espresso: [],
@@ -110,7 +109,10 @@ function App() {
     const menuId = e.target.closest("li").dataset.menuId;
     const $MenuName = e.target.closest("li").querySelector(".menu-name");
     const updateMenuName = prompt("메뉴를 수정하세요", $MenuName.innerText);
-    await MenuApi.editMenuName(this.currentCategory, menuId, updateMenuName);
+    console.log(updateMenuName);
+    updateMenuName
+      ? await MenuApi.editMenuName(this.currentCategory, menuId, updateMenuName)
+      : alert("다시 입력해주세요");
     render();
   };
 
