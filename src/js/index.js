@@ -16,11 +16,10 @@ import MenuApi from "../api/index.js";
 // [x] - fetch 비동기 api를 사용하는 부분을 async await을 사용하여 구현한다.
 
 // TODO 사용자 설정
-// [] - API 통신이 실패하는 경우에 대해 사용자가 알 수 있게 alert으로 예외처리를 진행한다.
-// [] - 중복되는 메뉴는 추가할 수 없다.
+// [x] - API 통신이 실패하는 경우에 대해 사용자가 알 수 있게 alert으로 예외처리를 진행한다.
+// [x] - 중복되는 메뉴는 추가할 수 없다.
 // API 통신 방법 fetch('url', option)
 
-const BASE_URL = "http://localhost:3000/api";
 function App() {
   this.menu = {
     espresso: [],
@@ -81,10 +80,24 @@ function App() {
   };
 
   const addMenu = async () => {
-    if ($("#menu-name").value === "") {
+    if (
+      $("#menu-name").value === "" ||
+      this.menu[this.currentCategory].find(
+        (menu) => menu.name === $("#menu-name").value
+      )
+    ) {
       alert("값을 입력해주세여");
       return;
     }
+    const duplicatedItem = this.menu[this.currentCategory].find(
+      (menu) => menu.name === $("#menu-name").value
+    );
+    if (duplicatedItem) {
+      alert("이미 등록된 메뉴입니다. 다시 입력해주세요!");
+      $("#menu-name").value = "";
+      return;
+    }
+
     const menuName = $("#menu-name").value;
     // 메뉴 추가하는 api 요청
     await MenuApi.createMenu(this.currentCategory, menuName);
@@ -96,7 +109,10 @@ function App() {
     const menuId = e.target.closest("li").dataset.menuId;
     const $MenuName = e.target.closest("li").querySelector(".menu-name");
     const updateMenuName = prompt("메뉴를 수정하세요", $MenuName.innerText);
-    await MenuApi.editMenuName(this.currentCategory, menuId, updateMenuName);
+    console.log(updateMenuName);
+    updateMenuName
+      ? await MenuApi.editMenuName(this.currentCategory, menuId, updateMenuName)
+      : alert("다시 입력해주세요");
     render();
   };
 
